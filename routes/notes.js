@@ -10,6 +10,7 @@ router.post('/', async (req, res) => {
     try {
         const { title, content, tags, postDate } = req.body;
 
+        // Validate required fields
         if (!title || !postDate) {
             return res.status(400).json({
                 error : "MISSING_FIELDS"
@@ -28,15 +29,28 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-    const user = req.user;
-
-    const notes = await Note.find({owner : user._id});
-
-    return res.json(notes);
+    try {
+        const user = req.user;
+        const notes = await Note.find({owner : user._id});
+        return res.json(notes);
+    } catch (error) {
+        return res.status(500).json({
+            error
+        });
+    }
 });
 
 router.delete('/note/:id', async (req, res) => {
-    return await Note.remove({owner : user._id, _id: req.params.id});
+    
+    try {
+        const user = req.user;
+        await Note.remove({owner : user._id, _id: req.params.id});
+        return res.status(200).end();
+    } catch (error) {
+        return res.status(500).json({
+            error
+        });
+    }
 });
 
 
